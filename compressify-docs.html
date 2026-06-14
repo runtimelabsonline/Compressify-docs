@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compressify — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #07090d;
+    --bg2:      #0d1117;
+    --bg3:      #111820;
+    --surface:  #141c27;
+    --surface2: #1a2333;
+    --border:   #1e2d3d;
+    --border2:  #243344;
+    --cyan:     #00c8f0;
+    --cyan2:    #00a8cc;
+    --cyan-dim: #007a99;
+    --cyan-glow:#00c8f014;
+    --text:     #e8f2fc;
+    --text2:    #8faec8;
+    --text3:    #4d6a82;
+    --success:  #1dbb6e;
+    --warn:     #e8a020;
+    --danger:   #f04848;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── LAYOUT ── */
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .logo-mark {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+  }
+  .logo-hex {
+    width: 32px; height: 32px;
+    background: var(--cyan-glow);
+    border: 1px solid var(--cyan-dim);
+    display: flex; align-items: center; justify-content: center;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  .logo-hex span { font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--cyan); }
+  .sidebar-logo h2 { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.1em; }
+  .sidebar-logo p { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; margin-top: 2px; }
+
+  .sidebar nav { flex: 1; padding: 16px 0; }
+
+  .nav-section { margin-bottom: 24px; }
+  .nav-section-label {
+    font-size: 9px;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    padding: 0 20px 8px;
+    text-transform: uppercase;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text2);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active { color: var(--cyan); border-left-color: var(--cyan); background: var(--cyan-glow); }
+  .nav-item .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--border2); flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .nav-item.active .dot, .nav-item:hover .dot { background: var(--cyan); }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .version-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--cyan);
+    border: 1px solid var(--cyan-dim);
+    background: var(--cyan-glow);
+    padding: 3px 8px;
+    display: inline-block;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { margin-left: 240px; flex: 1; min-height: 100vh; }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 64px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--cyan);
+  }
+
+  .hero h1 {
+    font-family: var(--mono);
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .hero h1 .accent { color: var(--cyan); }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text2);
+    font-weight: 300;
+    margin-bottom: 32px;
+    max-width: 560px;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .hero-stats {
+    display: flex; gap: 0;
+    border: 1px solid var(--border2);
+    width: fit-content;
+    position: relative;
+  }
+  .hero-stat {
+    padding: 14px 28px;
+    border-right: 1px solid var(--border2);
+  }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-num {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .hero-scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--cyan);
+    opacity: 0.3;
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan {
+    0%   { top: 0; opacity: 0; }
+    5%   { opacity: 0.3; }
+    95%  { opacity: 0.3; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* ── CONTENT SECTIONS ── */
+  .content { max-width: 860px; padding: 64px 64px 96px; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 72px; scroll-margin-top: 24px; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 60px;
+  }
+
+  .section h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .section h3 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 36px;
+    margin-bottom: 10px;
+  }
+  .section p { color: var(--text2); margin-bottom: 16px; }
+  .section p strong { color: var(--text); font-weight: 500; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 56px 0;
+  }
+
+  /* ── QUICK START STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 20px;
+  }
+
+  .step-left {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    border: 1px solid var(--cyan-dim);
+    background: var(--cyan-glow);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    flex-shrink: 0;
+  }
+  .step-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin: 8px 0;
+    min-height: 24px;
+  }
+  .step:last-child .step-line { display: none; }
+
+  .step-content {
+    padding-bottom: 32px;
+    padding-top: 6px;
+  }
+  .step-content h4 {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    margin-bottom: 6px;
+  }
+  .step-content p { color: var(--text2); font-size: 14px; margin-bottom: 0; }
+
+  /* ── CARDS GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    padding: 24px;
+  }
+  .card-icon {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  .card h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text2); margin-bottom: 0; line-height: 1.6; }
+
+  /* ── TAB DOC BLOCKS ── */
+  .tab-block {
+    border: 1px solid var(--border2);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .tab-block-header {
+    display: flex; align-items: center; gap: 0;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .tab-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    padding: 10px 20px;
+    border-right: 1px solid var(--border2);
+    text-transform: uppercase;
+    background: var(--cyan-glow);
+  }
+
+  .tab-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    padding: 10px 18px;
+    flex: 1;
+  }
+
+  .tab-block-body { padding: 24px; background: var(--surface); }
+  .tab-block-body p { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
+  .tab-block-body p:last-child { margin-bottom: 0; }
+
+  /* ── FEATURE LIST ── */
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .feature-list li {
+    font-size: 13px; color: var(--text2);
+    display: flex; align-items: flex-start; gap: 10px;
+    line-height: 1.5;
+  }
+  .feature-list li::before {
+    content: '→';
+    font-family: var(--mono);
+    color: var(--cyan);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── PLATFORM TABLE ── */
+  .plat-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .plat-table th {
+    background: var(--bg2);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border2);
+    border-right: 1px solid var(--border);
+    text-align: left;
+  }
+  .plat-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .plat-table tr:last-child td { border-bottom: none; }
+  .plat-table td:first-child {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+  .plat-table td:last-child, .plat-table th:last-child { border-right: none; }
+  .plat-table tr:hover td { background: var(--bg3); }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    padding: 16px 20px;
+    border-left: 2px solid;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .callout-info  { border-color: var(--cyan);    background: var(--cyan-glow);  color: var(--text2); }
+  .callout-warn  { border-color: var(--warn);    background: #e8a02010;          color: #c8901c; }
+  .callout-danger{ border-color: var(--danger);  background: #f0484810;          color: #c84040; }
+  .callout-ok    { border-color: var(--success); background: #1dbb6e10;          color: #18a860; }
+  .callout strong { display: block; font-weight: 700; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+  }
+  .code-block .kw   { color: var(--cyan); }
+  .code-block .str  { color: #7ec8a0; }
+  .code-block .num  { color: #e8a020; }
+  .code-block .cmt  { color: var(--text3); font-style: italic; }
+  .code-block-label {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text3); letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: absolute; top: 10px; right: 14px;
+  }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+    background: var(--cyan-glow);
+    padding: 1px 6px;
+    border: 1px solid var(--border2);
+  }
+
+  /* ── PRO FEATURE GRID ── */
+  .pro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .pro-card {
+    background: var(--bg2);
+    padding: 22px 20px;
+  }
+  .pro-card-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid var(--cyan-dim);
+    background: var(--cyan-glow);
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .pro-card h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .pro-card p { font-size: 12px; color: var(--text2); margin-bottom: 0; line-height: 1.5; }
+
+  /* ── TOGGLE ROW REFERENCE ── */
+  .toggle-ref {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+  .toggle-row {
+    display: contents;
+  }
+  .toggle-row > * {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .toggle-row:last-child > * { border-bottom: none; }
+  .toggle-name {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--cyan);
+    white-space: nowrap;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+  }
+  .toggle-desc { color: var(--text2); background: var(--surface); }
+
+  /* ── FAQ ── */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0;
+  }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-q {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .faq-q::before {
+    content: 'Q';
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    background: var(--cyan-glow);
+    border: 1px solid var(--cyan-dim);
+    padding: 1px 7px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .faq-a {
+    font-size: 14px;
+    color: var(--text2);
+    padding-left: 44px;
+    line-height: 1.7;
+  }
+
+  /* ── PROGRESS VIZ ── */
+  .progress-demo {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--bg3);
+    position: relative;
+    margin: 10px 0 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--cyan);
+    transition: width 0.6s ease;
+  }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  /* ── ICON REFERENCE TABLE ── */
+  .icon-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .icon-table th {
+    background: var(--bg2);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border2);
+    text-align: left;
+    font-weight: 700;
+  }
+  .icon-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: middle;
+  }
+  .icon-table tr:last-child td { border-bottom: none; }
+  .icon-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+  }
+  .icon-table tr:hover td { background: var(--bg3); }
+
+  /* ── STATUS PILL ── */
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    text-transform: uppercase;
+  }
+  .pill-cyan    { color: var(--cyan);    border: 1px solid var(--cyan-dim);  background: var(--cyan-glow); }
+  .pill-ok      { color: var(--success); border: 1px solid #1dbb6e60;        background: #1dbb6e10; }
+  .pill-warn    { color: var(--warn);    border: 1px solid #e8a02060;        background: #e8a02010; }
+  .pill-danger  { color: var(--danger);  border: 1px solid #f0484860;        background: #f0484810; }
+
+  /* ── COMPARISON BLOCK ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 20px 0;
+  }
+  .compare-col { background: var(--surface); padding: 22px 22px; }
+  .compare-col h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .compare-col.col-before h4 { color: var(--text3); }
+  .compare-col.col-after  h4 { color: var(--cyan); }
+  .compare-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .compare-col li { font-size: 13px; color: var(--text2); display: flex; align-items: flex-start; gap: 8px; }
+  .col-after li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
+  .col-before li::before { content: '✗'; color: var(--danger); flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-left: 240px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 36px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer p { font-size: 12px; color: var(--text3); }
+  .footer .footer-brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+
+  /* ── ANIMATION ── */
+  .fade-in { opacity: 0; animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 2px; height: 1em;
+    background: var(--cyan);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 64px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(8px);
+  }
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .breadcrumb span { color: var(--text2); }
+  .breadcrumb .sep { color: var(--border2); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main, .footer { margin-left: 0; }
+    .content { padding: 32px; }
+    .hero { padding: 40px 32px; }
+    .hero h1 { font-size: 36px; }
+    .top-bar { padding: 10px 32px; }
+    .compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-hex"><span>C</span></div>
+      <div>
+        <h2>COMPRESSIFY</h2>
+        <p>by Runtime Labs</p>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Getting started</div>
+      <a class="nav-item active" href="#overview"><span class="dot"></span>Overview</a>
+      <a class="nav-item" href="#installation"><span class="dot"></span>Installation</a>
+      <a class="nav-item" href="#quickstart"><span class="dot"></span>Quick start</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Interface</div>
+      <a class="nav-item" href="#quick-compress"><span class="dot"></span>Quick Compress</a>
+      <a class="nav-item" href="#basic"><span class="dot"></span>Basic tab</a>
+      <a class="nav-item" href="#advanced"><span class="dot"></span>Advanced tab</a>
+      <a class="nav-item" href="#pro-suite"><span class="dot"></span>PRO Suite</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Reference</div>
+      <a class="nav-item" href="#platforms"><span class="dot"></span>Platform profiles</a>
+      <a class="nav-item" href="#icons"><span class="dot"></span>Icon requirements</a>
+      <a class="nav-item" href="#faq"><span class="dot"></span>FAQ</a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="version-badge">v 1.0.0</div>
+    <p style="font-size:11px;color:var(--text3);margin-top:8px;">Unity 2021.3+ required</p>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="breadcrumb">
+      <span>Runtime Labs</span>
+      <span class="sep">/</span>
+      <span>Compressify PRO</span>
+      <span class="sep">/</span>
+      <span style="color:var(--cyan)">Documentation</span>
+    </div>
+    <div style="flex:1"></div>
+    <span class="pill pill-ok">Stable</span>
+    <span class="pill pill-cyan">v 1.0.0</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid-overlay"></div>
+    <div class="hero-scan-line"></div>
+
+    <div class="hero-eyebrow">Compressify PRO — Documentation</div>
+
+    <h1>
+      Compress.<br>
+      <span class="accent">Optimize.</span><br>
+      Ship smaller.
+    </h1>
+
+    <p class="hero-sub" style="position:relative">
+      The complete guide to reducing your Unity project size with per-platform compression, duplicate detection, and automated build optimization — all from a single editor window.
+    </p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">5</div>
+        <div class="hero-stat-label">Platform Profiles</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">6</div>
+        <div class="hero-stat-label">Asset Types</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">~46%</div>
+        <div class="hero-stat-label">Avg. size reduction</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">PRO</div>
+        <div class="hero-stat-label">Duplicate finder</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <section class="section" id="overview">
+      <div class="section-label">Overview</div>
+      <h2>What is Compressify?</h2>
+      <p>
+        Compressify is a Unity Editor tool built by <strong>Runtime Labs</strong> that automates asset compression and project optimization. Instead of manually adjusting texture import settings, audio compression formats, and mesh parameters one-by-one, Compressify applies the right settings for your target platform in one click.
+      </p>
+      <p>
+        The PRO version adds a full asset intelligence suite: duplicate detection using MD5 hashing, large asset scanning, build report comparison across releases, and an integrated backup manager — all inside a single, purpose-built editor window.
+      </p>
+
+      <div class="compare">
+        <div class="compare-col col-before">
+          <h4>Without Compressify</h4>
+          <ul>
+            <li>Manual texture settings per asset</li>
+            <li>No per-platform compression profiles</li>
+            <li>Duplicate assets silently bloat builds</li>
+            <li>No build size trend tracking</li>
+            <li>No automated backup before optimization</li>
+          </ul>
+        </div>
+        <div class="compare-col col-after">
+          <h4>With Compressify</h4>
+          <ul>
+            <li>One-click platform-appropriate compression</li>
+            <li>5 built-in platform profiles (ETC2, ASTC, DXT5, BC7…)</li>
+            <li>MD5-based duplicate detection and auto-removal</li>
+            <li>Build report diff — compare two build outputs</li>
+            <li>Timestamped backup before every optimization run</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>PRO feature</strong>
+        This documentation covers Compressify PRO (v1.0.0). The Duplicate Finder, Large Asset Scanner, Build Comparator, and Backup Manager are exclusive to the PRO tier.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- INSTALLATION -->
+    <section class="section" id="installation">
+      <div class="section-label">Installation</div>
+      <h2>Getting the tool into your project</h2>
+      <p>
+        Compressify is distributed as a Unity custom package. Import it through the Package Manager or by dropping the folder directly into your project.
+      </p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">01</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h4>Import the package</h4>
+            <p>In Unity, go to <strong>Assets → Import Package → Custom Package</strong> and select the <code>.unitypackage</code> file, or drag the <code>Runtime Labs/</code> folder into your <code>Assets/</code> directory. Requires Unity 2021.3 LTS or newer.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">02</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h4>Verify the folder structure</h4>
+            <p>Ensure the following path exists in your project. The tool will not load icons if this path is wrong:</p>
+            <div class="code-block">
+              <span class="kw">Assets/</span>
+              └── Runtime Labs/
+                  └── Compressify/
+                      └── Editor/
+                          ├── <span class="str">Compressify.cs</span>          <span class="cmt">← main tool</span>
+                          └── Icons/
+                              ├── <span class="str">logo.png</span>
+                              ├── <span class="str">texture.png</span>
+                              └── <span class="cmt">... (see Icon Requirements)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">03</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h4>Place your icons</h4>
+            <p>Compressify uses PNG icons from the <code>Icons/</code> folder. Create or download the required icons (listed in the <a href="#icons" style="color:var(--cyan)">Icon Requirements</a> section) and place them there. The tool functions without icons — they simply won't render.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">04</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h4>Open the window</h4>
+            <p>In Unity, click <strong>Tools → Compressify</strong> from the menu bar. The window opens at a minimum size of 520×700 and can be docked anywhere in your editor layout.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>Editor-only</strong>
+        Compressify is wrapped in <code>#if UNITY_EDITOR</code> and does not include any runtime code. It will never increase your build size.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- QUICK START -->
+    <section class="section" id="quickstart">
+      <div class="section-label">Quick start</div>
+      <h2>Compress your first project in 60 seconds</h2>
+      <p>The fastest path from open project to optimized project — using the Quick Compress tab.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <h4>Back up your project first</h4>
+            <p>Go to the <strong>PRO Suite → Backup</strong> tab and click <strong>Create Backup</strong>. Compressify modifies Unity asset import settings permanently. A timestamped backup is created in a <code>Backups/</code> folder next to your project root.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <h4>Confirm backup &amp; select platform</h4>
+            <p>On the <strong>Quick Compress</strong> tab, tick the "I have backed up my project" checkbox to unlock compression. Then pick your target platform — Android, iOS, PC, WebGL, or Console.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <h4>Toggle your asset types</h4>
+            <p>Enable the optimizations you want. Each toggle targets a specific asset category. Textures, Audio, Meshes, and Shader stripping are recommended for all platforms. LOD Settings is optional for non-mobile targets.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <h4>Click Run Quick Compress</h4>
+            <p>Compressify processes each enabled asset type in sequence. Watch the progress bar and Activity Log as each category completes. A final report shows how much space was recovered.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-demo">
+        <div class="progress-meta"><span>PROGRESS</span><span>[3/5] Meshes…</span></div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:60%"></div>
+        </div>
+        <div class="progress-meta"><span>60%</span><span>Running…</span></div>
+      </div>
+
+      <div class="callout callout-ok">
+        <strong>What gets changed?</strong>
+        Quick Compress only modifies Unity import settings — it does not delete or move any files. Original source assets are untouched. You can revert any change via Unity's Undo history or by restoring your backup.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- QUICK COMPRESS TAB -->
+    <section class="section" id="quick-compress">
+      <div class="section-label">Interface</div>
+      <h2>Quick Compress tab</h2>
+      <p>The main tab is organized into four numbered sections that guide you through a safe, repeatable workflow.</p>
+
+      <div class="tab-block">
+        <div class="tab-block-header">
+          <div class="tab-label">Section 1</div>
+          <div class="tab-title">Confirm Backup</div>
+        </div>
+        <div class="tab-block-body">
+          <p>A safety gate. You must tick the checkbox before the <strong>Run Quick Compress</strong> button becomes active. This is intentional — compression is destructive to import settings and should never be run without a known-good backup to restore from.</p>
+          <p>The <strong>Open Backup Manager →</strong> link jumps directly to the Backup sub-tab inside PRO Suite.</p>
+        </div>
+      </div>
+
+      <div class="tab-block">
+        <div class="tab-block-header">
+          <div class="tab-label">Section 2</div>
+          <div class="tab-title">Target Platform</div>
+        </div>
+        <div class="tab-block-body">
+          <p>Choose the deployment target for this optimization pass. Each platform applies different compression formats, audio settings, and mesh parameters. See the full <a href="#platforms" style="color:var(--cyan)">Platform Profiles reference</a> below.</p>
+          <p>The spec line underneath the buttons updates to show the active profile's key settings at a glance — e.g. <em>"ETC2 textures · Mono Vorbis audio · Medium mesh compression"</em> for Android.</p>
+        </div>
+      </div>
+
+      <div class="tab-block">
+        <div class="tab-block-header">
+          <div class="tab-label">Section 3</div>
+          <div class="tab-title">Select Optimizations</div>
+        </div>
+        <div class="tab-block-body">
+          <p>Six toggles control which asset types are included in the compression pass. Each toggle row shows the asset category name, a brief description, and a pill-style on/off switch. Click anywhere on the row to toggle.</p>
+
+          <div class="toggle-ref">
+            <div class="toggle-row">
+              <div class="toggle-name">Textures</div>
+              <div class="toggle-desc">Sets platform-specific format (ETC2/ASTC/DXT5/BC7), enables mipmaps, caps max size at 1024px (2048px for PC/Console). Applied via Unity's TextureImporter.</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-name">Audio</div>
+              <div class="toggle-desc">Switches to Vorbis compression at 50% quality for all platforms except Console (which uses PCM lossless). Android and iOS also force mono to halve memory.</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-name">Meshes</div>
+              <div class="toggle-desc">Sets ModelImporter mesh compression to Medium (High for WebGL). Enables Unity's polygon and vertex optimizers. Applied to all model assets found by the AssetDatabase.</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-name">Strip Shaders</div>
+              <div class="toggle-desc">Calls Clear() on every ShaderVariantCollection in the project. Removes pre-compiled variants that aren't needed, reducing build shader data. Only affects variance collections, not source shaders.</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-name">Sprite Atlases</div>
+              <div class="toggle-desc">Enables tight packing and texture compression on every SpriteAtlas asset, reducing atlas texture overhead in 2D projects.</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-name">LOD Settings</div>
+              <div class="toggle-desc">Disables blend shapes, embedded cameras, and embedded lights on all Model assets — settings commonly left on by default that increase memory without visual benefit.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-block">
+        <div class="tab-block-header">
+          <div class="tab-label">Section 4</div>
+          <div class="tab-title">Run Compression + Estimated Impact</div>
+        </div>
+        <div class="tab-block-body">
+          <p>The <strong>RUN QUICK COMPRESS</strong> button triggers a confirmation dialog, then processes every enabled asset type in order. A progress bar and status label show the current step.</p>
+          <p>The <strong>Estimated Impact</strong> panel on the right shows project size before and after, plus the estimated savings. These figures update live after each compression run using direct filesystem measurement — no guesswork.</p>
+          <p>A <strong>Safe &amp; Recommended</strong> notice confirms that no source files are deleted — only import settings are written.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- BASIC TAB -->
+    <section class="section" id="basic">
+      <div class="section-label">Interface</div>
+      <h2>Basic tab</h2>
+      <p>The Basic tab exposes each optimization as an individual action — useful when you only need to re-run one specific category without touching the others.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">[ TX ]</div>
+          <h4>Compress Textures</h4>
+          <p>Runs only the texture compression pass using the currently selected platform profile. Iterates all <code>t:Texture</code> assets.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">[ AU ]</div>
+          <h4>Compress Audio</h4>
+          <p>Re-applies audio compression settings to all <code>t:AudioClip</code> assets. Respects the active platform profile for mono/stereo and quality.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">[ MS ]</div>
+          <h4>Optimize Meshes</h4>
+          <p>Runs mesh compression and vertex/polygon optimization on all <code>t:Mesh</code> assets. Uses platform profile to determine compression level.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">[ RP ]</div>
+          <h4>Build Size Report</h4>
+          <p>Scans all asset paths and logs the top 10 largest files by size to the Activity Log. No changes are made to any assets.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Platform profile applies here too</strong>
+        Individual operations in the Basic tab use the same platform profile selected on the Quick Compress tab. Switch back to Quick Compress to change it before running individual operations.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ADVANCED TAB -->
+    <section class="section" id="advanced">
+      <div class="section-label">Interface</div>
+      <h2>Advanced tab</h2>
+      <p>Three additional tools, a danger-zone action, and a build hook for fully automated optimization pipelines.</p>
+
+      <h3>Asset operations</h3>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">[ SH ]</div>
+          <h4>Strip Unused Shaders</h4>
+          <p>Clears all ShaderVariantCollections. Run this before a release build to cut shader compilation overhead and build size.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">[ AT ]</div>
+          <h4>Compress Sprite Atlases</h4>
+          <p>Finds all <code>t:SpriteAtlas</code> assets and enables tight packing + compressed texture format via serialized properties.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">[ LD ]</div>
+          <h4>Apply LOD Settings</h4>
+          <p>Strips embedded cameras, lights, and blend shapes from all Model assets. Particularly useful for imported FBX files from third-party sources.</p>
+        </div>
+      </div>
+
+      <h3>Remove unused assets</h3>
+      <div class="callout callout-danger">
+        <strong>Destructive — no undo</strong>
+        "Remove Unused Assets" permanently deletes any asset where <code>AssetDatabase.GetDependencies(path).Length ≤ 1</code>. An asset with no dependents is assumed to be unreferenced. Always create a backup before using this. There is no undo once files are deleted from disk.
+      </div>
+      <p style="font-size:14px; color:var(--text2)">Unity's <code>GetDependencies</code> tracks explicit asset references — it does not detect programmatic string-based asset loads such as <code>Resources.Load("path")</code>. Assets loaded this way will appear unreferenced and may be incorrectly deleted. Use this feature only if you have eliminated <code>Resources</code> folder usage from your project.</p>
+
+      <h3>Build hook</h3>
+      <p>Enable <strong>Auto-optimize before every build</strong> to register a <code>BuildPlayerHandler</code> that runs the full Quick Compress pass automatically each time you trigger a build. The active optimization toggles and platform profile are used.</p>
+      <div class="code-block">
+        <span class="cmt">// What happens when the hook is enabled:</span>
+        <br>BuildPlayerWindow.RegisterBuildPlayerHandler(OnBuildPlayerDelegate);
+        <br>
+        <br><span class="cmt">// OnBuildPlayerDelegate runs:</span>
+        <br>RunQuickCompressSteps();          <span class="cmt">// applies all active toggles</span>
+        <br>BuildPipeline.BuildPlayer(opts);  <span class="cmt">// then hands off to Unity</span>
+      </div>
+      <p style="font-size:14px;color:var(--text2)">Disable the hook when iterating during development — re-compressing all assets before every test build will significantly slow your build times.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PRO SUITE -->
+    <section class="section" id="pro-suite">
+      <div class="section-label">PRO Suite</div>
+      <h2>PRO Suite — five specialist tools</h2>
+      <p>The PRO Suite is a set of five sub-tabs for deeper project intelligence, accessible from the <strong>PRO SUITE</strong> tab in the main navigation.</p>
+
+      <div class="pro-grid">
+        <div class="pro-card">
+          <div class="pro-card-tag">01 — Dashboard</div>
+          <h4>Project Overview</h4>
+          <p>Shows total project size before and after any PRO scans, and the amount recovered. Run a full PRO scan to update all figures at once.</p>
+        </div>
+        <div class="pro-card">
+          <div class="pro-card-tag">02 — Duplicates</div>
+          <h4>Duplicate Finder</h4>
+          <p>MD5-hashes every file in <code>Assets/</code> above a configurable size threshold, groups identical files, and reports how much space duplicates waste.</p>
+        </div>
+        <div class="pro-card">
+          <div class="pro-card-tag">03 — Large Assets</div>
+          <h4>Large Asset Scanner</h4>
+          <p>Lists all assets exceeding the size threshold (shared with Duplicates), sorted largest-first. Useful for identifying targets before manual optimization.</p>
+        </div>
+        <div class="pro-card">
+          <div class="pro-card-tag">04 — Build Compare</div>
+          <h4>Build Report Diff</h4>
+          <p>Compares two Unity build reports (text or JSON) line-by-line, showing added and removed assets and the overall size delta between builds.</p>
+        </div>
+        <div class="pro-card">
+          <div class="pro-card-tag">05 — Backup</div>
+          <h4>Backup Manager</h4>
+          <p>Creates a full recursive copy of your <code>Assets/</code> folder into <code>../Backups/Backup_YYYYMMDD_HHMMSS/</code>. Use before any destructive operation.</p>
+        </div>
+      </div>
+
+      <h3>Using the Duplicate Finder</h3>
+      <p>
+        Set the <strong>minimum file size</strong> threshold in the Duplicates tab (default: 1 MB). This filters out small files like <code>.meta</code> entries that commonly share content. Click <strong>Scan for Duplicates</strong> — Compressify reads every qualifying file, computes its MD5 hash, and groups files that share a hash.
+      </p>
+      <p>
+        Results show the number of groups, total duplicate count, and recoverable space. Expand the <strong>Show duplicate groups</strong> foldout to inspect paths. Use <strong>Copy MD5 Report</strong> to export the full list to clipboard.
+      </p>
+      <p>
+        <strong>Auto-Delete Duplicates</strong> keeps the first file in each group (alphabetically by path) and deletes the rest using <code>AssetDatabase.DeleteAsset</code>. A confirmation dialog is always shown first.
+      </p>
+
+      <div class="callout callout-warn">
+        <strong>Review before deleting</strong>
+        Files can share the same MD5 hash and serve different logical roles (e.g. two identical textures used in separate materials). Review the group list and verify which copy you want to keep before running auto-delete.
+      </div>
+
+      <h3>Using the Build Report Comparator</h3>
+      <p>
+        After making two separate builds, copy the generated <code>*.txt</code> or <code>*.json</code> build log files somewhere accessible. Click the <strong>…</strong> browser buttons to locate Report A (older build) and Report B (newer build), then click <strong>Compare Reports →</strong>.
+      </p>
+      <p>
+        The comparator parses line entries, extracts filenames and sizes, and produces a diff showing assets added in B, assets removed compared to A, and the total size delta. Results appear in the output area below and can be scrolled.
+      </p>
+
+      <h3>The Backup Manager</h3>
+      <p>
+        Click <strong>Create Backup</strong> to copy your entire <code>Assets/</code> folder to <code>&lt;ProjectRoot&gt;/Backups/Backup_YYYYMMDD_HHMMSS/</code>. The operation is synchronous and may take a few seconds on large projects. A success message shows the full destination path.
+      </p>
+      <p>
+        Click <strong>Open Folder</strong> to reveal the Backups directory in your OS file manager. Old backups can be manually deleted from there — Compressify does not manage backup cleanup automatically.
+      </p>
+
+      <div class="callout callout-info">
+        <strong>Backup location</strong>
+        Backups are stored <em>outside</em> your <code>Assets/</code> folder so they are not imported by Unity and do not affect your project. The path is <code>&lt;ProjectRoot&gt;/Backups/</code>.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PLATFORM PROFILES -->
+    <section class="section" id="platforms">
+      <div class="section-label">Reference</div>
+      <h2>Platform profiles</h2>
+      <p>
+        Each profile encodes the best-practice compression settings for that deployment target. All settings are applied through Unity's standard <code>TextureImporter</code>, <code>AudioImporter</code>, and <code>ModelImporter</code> APIs — they are exactly what you would set manually in the Inspector.
+      </p>
+
+      <table class="plat-table">
+        <thead>
+          <tr>
+            <th>Profile</th>
+            <th>Texture format</th>
+            <th>Max texture size</th>
+            <th>Audio</th>
+            <th>Mesh compression</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Android</td>
+            <td>ETC2_RGBA8</td>
+            <td>1024 px</td>
+            <td>Vorbis 50%, Mono</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td>ASTC_6x6</td>
+            <td>1024 px</td>
+            <td>Vorbis 50%, Mono</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>PC</td>
+            <td>DXT5</td>
+            <td>2048 px</td>
+            <td>Vorbis 50%, Stereo</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>WebGL</td>
+            <td>DXT5</td>
+            <td>1024 px</td>
+            <td>Vorbis 50%, Stereo</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td>Console</td>
+            <td>BC7</td>
+            <td>2048 px</td>
+            <td>PCM lossless, Stereo</td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Why these formats?</h3>
+      <p><strong>ETC2</strong> is the mandatory hardware-decoded format on all Android 4.3+ devices and has universal OpenGL ES 3 support. It gives excellent ratio with no quality loss on devices.</p>
+      <p><strong>ASTC 6×6</strong> is the flexible successor for iOS 8+ and modern Android. The 6×6 block size balances size reduction against quality — use ASTC 4×4 for higher-quality UI textures if needed.</p>
+      <p><strong>DXT5 (BC3)</strong> is the universal choice for DirectX targets. WebGL also benefits since the browser decompresses DXT on the GPU for most desktop users.</p>
+      <p><strong>BC7</strong> is the highest-quality DX11 block-compressed format, appropriate for the higher-spec hardware of console and high-end PC targets where the texture budget is less critical.</p>
+      <p><strong>Mono audio</strong> on mobile halves audio memory footprint with no perceptible difference on device speakers or earbuds. Console and PC use stereo because spatial audio quality matters on those platforms.</p>
+      <p><strong>High mesh compression on WebGL</strong> is set because WebGL downloads are bandwidth-constrained. The tradeoff is slightly longer load time as the GPU decompresses on first use.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ICONS -->
+    <section class="section" id="icons">
+      <div class="section-label">Reference</div>
+      <h2>Icon requirements</h2>
+      <p>
+        Compressify looks for PNG icons in <code>Assets/Runtime Labs/Compressify/Editor/Icons/</code>. All icons are optional — missing icons are silently skipped and the corresponding UI element falls back to text-only. Recommended size is <strong>20×20 or 32×32 px</strong> with a white or cyan subject on a transparent background.
+      </p>
+
+      <table class="icon-table">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Used in</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>logo.png</td>
+            <td>Header top-left hex badge</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>android.png</td>
+            <td>Android platform button</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>ios.png</td>
+            <td>iOS platform button</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>pc.png</td>
+            <td>PC platform button</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>webgl.png</td>
+            <td>WebGL platform button</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>console.png</td>
+            <td>Console platform button</td>
+            <td><span class="pill pill-danger">High</span></td>
+          </tr>
+          <tr>
+            <td>texture.png</td>
+            <td>Textures toggle row icon</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>audio.png</td>
+            <td>Audio toggle row icon</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>mesh.png</td>
+            <td>Meshes toggle row icon</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>shader.png</td>
+            <td>Strip Shaders toggle + Advanced tab</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>atlas.png</td>
+            <td>Sprite Atlases toggle row</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>lod.png</td>
+            <td>LOD Settings toggle row</td>
+            <td><span class="pill pill-warn">Medium</span></td>
+          </tr>
+          <tr>
+            <td>shield.png</td>
+            <td>Section 1 "Confirm Backup" header</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>platform.png</td>
+            <td>Section 2 "Target Platform" header</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>optimize.png</td>
+            <td>Section 3 header + Quick Compress tab icon</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>run.png</td>
+            <td>Section 4 "Run Compression" header</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>report.png</td>
+            <td>Basic tab — Build Size Report row</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>backup.png</td>
+            <td>PRO Suite → Backup tab header</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>log.png</td>
+            <td>Activity Log panel header</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+          <tr>
+            <td>safe.png</td>
+            <td>"Safe &amp; Recommended" card icon</td>
+            <td><span class="pill pill-ok">Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <strong>Tip — use Unity built-in icons</strong>
+        Unity ships hundreds of editor icons accessible via <code>EditorGUIUtility.IconContent("icon-name")</code>. You can use built-in icons for low-priority slots and save your custom icons for the branding elements like the logo and platform buttons.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="section-label">FAQ</div>
+      <h2>Frequently asked questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">Will Compressify affect my game's visual quality?</div>
+        <div class="faq-a">
+          Compression always involves a tradeoff. ETC2, ASTC, and DXT5 are lossy — you may see minor artifacts on textures with fine gradients or text. The default max texture size of 1024px (2048px on PC/Console) may downsample very large textures. For UI-critical textures, consider manually overriding those specific assets after the bulk compression pass.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Can I run Compressify on a project that's already been compressed once?</div>
+        <div class="faq-a">
+          Yes. Running it again will re-apply the same settings, which is a no-op if nothing changed. If you switch platform profile between runs, the new settings overwrite the previous ones. Import settings are stored in <code>.meta</code> files and are safe to overwrite repeatedly.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How long does Quick Compress take?</div>
+        <div class="faq-a">
+          It depends on your project size. The bottleneck is Unity's <code>SaveAndReimport()</code> call — each texture, audio clip, and mesh must be reimported after its settings change. A project with 500 textures, 200 audio clips, and 150 meshes typically takes 5–15 minutes. Subsequent runs are faster because Unity caches reimport results.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">The Duplicate Finder is slow on my project. Why?</div>
+        <div class="faq-a">
+          The finder reads every file's bytes to compute its MD5 hash. On a project with thousands of large binary assets (textures, audio, prefabs), this involves significant disk I/O. The 1 MB minimum threshold helps — increase it further to skip smaller files you don't care about. Run the scan during a break or overnight.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Can I undo compression after running it?</div>
+        <div class="faq-a">
+          Import setting changes appear in Unity's Undo stack for the current session. After restarting Unity, the only way to revert is to restore a backup. This is why the backup confirmation gate exists on the Quick Compress tab — use it every time.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">What happens if I compress for Android but then switch to building for PC?</div>
+        <div class="faq-a">
+          The per-platform override settings applied by Compressify only activate when Unity builds for that specific platform. When you switch build target to PC, Unity will use the PC override settings (or the default settings if PC hasn't been run yet). Platform-specific overrides coexist — they do not conflict.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Is it safe to enable "Auto-optimize before every build"?</div>
+        <div class="faq-a">
+          Safe, but slow. Every build will trigger a full compression pass before handing off to Unity's build pipeline. This is appropriate for CI/CD pipelines and final release builds, but will significantly slow iterative development builds. Turn it off during day-to-day work and enable it only for release pipeline runs.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Does the tool support Unity 6 / URP / HDRP?</div>
+        <div class="faq-a">
+          Compressify operates at the asset importer level, which is render-pipeline-agnostic. It works with Built-in RP, URP, HDRP, and Unity 6. The shader stripping feature clears <code>ShaderVariantCollection</code> assets regardless of pipeline. No render-pipeline-specific features are used.
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Compressify PRO Documentation · Runtime Labs · v 1.0.0</p>
+  <div class="footer-brand">COMPRESSIFY</div>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = document.querySelectorAll('section[id]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
